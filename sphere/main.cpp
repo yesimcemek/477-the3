@@ -99,6 +99,12 @@ void key_callback( GLFWwindow* window, int key, int scancode, int action, int mo
 		case GLFW_KEY_D:
 				yaw += 0.05f;
 				break;
+		case GLFW_KEY_T:
+				lightPosition.y += 5;
+				break;
+		case GLFW_KEY_G:
+				lightPosition.y -= 5;
+				break;
 		case GLFW_KEY_Q:
 				textureOffset -= 1;
 				break;
