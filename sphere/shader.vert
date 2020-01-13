@@ -10,8 +10,8 @@ uniform vec3 lightPosition;
 uniform float heightFactor;
 
 // Texture-related data
-uniform sampler2D heightTex;  // The height  (we'll bind to texture unit 0)
-uniform sampler2D normalTex;   // The texture (we'll bind to texture unit 1)
+uniform sampler2D heightMap;
+uniform sampler2D rgbTexture; 
 
 uniform int widthTexture;
 uniform int heightTexture;
@@ -30,8 +30,7 @@ out vec3 ToCameraVector; // Vector from Vertex to Camera;
 
 float computeHeight(vec2 pos)
 {
-	//return (((texture(rgbTexture, pos).x *0.2126) + (0.7152 * texture(rgbTexture, pos).y) + (0.0722 * texture(rgbTexture, pos).z)) * heightFactor);
-	return (texture(heightTex, pos).x)*heightFactor;
+	return (texture(heightMap, pos).x)*heightFactor;
 }
 
 vec3 computeNormal(vec3 a, vec3 b, vec3 c)
@@ -72,19 +71,9 @@ void main()
 	pos.x = position.x;
 	pos.z = position.z;
 	pos.y = position.y;
-
-	textureCoordinate = computeCoord(pos);
-	//pos.y = computeHeight(textureCoordinate);
-
-	// compute toLight vector vertex coordinate in VCS
-	ToLightVector = normalize(lightPosition - pos);
-	ToCameraVector = normalize(cameraPosition - pos);
-
-	//set gl_Position variable correctly to give the transformed vertex position
-
-	gl_Position = projection*view*vec4(pos, 1.0);
-	float beta = acos(pos.z/radius);
-    	float alpha = acos(pos.x/(radius*sin(beta)));
+	
+	float beta = acos(position.z/radius);
+    	float alpha = acos(position.x/(radius*sin(beta)));
 	int horizontalStep = int(round((alpha*horizontalSplitCount)/(2*pi)));
 	int verticalStep = int(round((beta*verticalSplitCount)/(pi)));
 	
@@ -95,14 +84,26 @@ void main()
 	vec3 bottom_left = computePoint(horizontalStep - 1, verticalStep + 1);
 	vec3 left = computePoint(horizontalStep - 1, verticalStep);
 	
-	vec3 normal1 = computeNormal(pos, top_right, top);
-	vec3 normal2 = computeNormal(pos, top, left);
-	vec3 normal3 = computeNormal(pos, left, bottom_left);
-	vec3 normal4 = computeNormal(pos, bottom_left, bottom);
-	vec3 normal5 = computeNormal(pos, bottom, right);
-	vec3 normal6 = computeNormal(pos, right, top);
+	vec3 normal1 = computeNormal(position, top_right, top);
+	vec3 normal2 = computeNormal(position, top, left);
+	vec3 normal3 = computeNormal(position, left, bottom_left);
+	vec3 normal4 = computeNormal(position, bottom_left, bottom);
+	vec3 normal5 = computeNormal(position, bottom, right);
+	vec3 normal6 = computeNormal(position, right, top);
 	
 	vertexNormal = normalize((normal1 + normal2 + normal3 + normal4 + normal5 + normal6)/6);
+	
+	textureCoordinate = computeCoord(pos);
+	pos = pos + computeHeight(textureCoordinate)*vertexNormal;
+
+	// compute toLight vector vertex coordinate in VCS
+	ToLightVector = normalize(lightPosition - pos);
+	ToCameraVector = normalize(cameraPosition - pos);
+
+	//set gl_Position variable correctly to give the transformed vertex position
+
+	gl_Position = projection*view*vec4(pos, 1.0);
+	
 
 
 

@@ -82,7 +82,7 @@ bool readDataFromFile(const string& fileName, string &data) {
     return true;
 }
 
-void initTexture(char *filename,int *w, int *h, GLuint id, int textureNumber)
+void initTexture(char *filename,int *w, int *h, GLuint id, int index)
 {
     int width, height;
 
@@ -135,8 +135,9 @@ void initTexture(char *filename,int *w, int *h, GLuint id, int textureNumber)
     width = cinfo.image_width;
 
     glGenTextures(1,&id);
+    glActiveTexture(GL_TEXTURE0 + index);
     glBindTexture(GL_TEXTURE_2D, id);
-    glActiveTexture(GL_TEXTURE0 + textureNumber);
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, raw_image);
 
     *w = width;

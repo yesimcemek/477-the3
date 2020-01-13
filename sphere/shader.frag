@@ -8,8 +8,8 @@ uniform mat4 MV; // ModelView idMVPMatrix
 uniform vec4 cameraPosition;
 
 // Texture-related data;
-uniform sampler2D heightTex;  // The height  (we'll bind to texture unit 0)
-uniform sampler2D normalTex;   // The texture (we'll bind to texture unit 1)
+uniform sampler2D heightMap;
+uniform sampler2D rgbTexture; 
 
 uniform int widthTexture;
 uniform int heightTexture;
@@ -24,7 +24,7 @@ void main() {
 
   // Assignment Constants below
   // get the texture color
-  vec4 textureColor = texture(normalTex, textureCoordinate);
+  vec4 textureColor = texture(rgbTexture, textureCoordinate);
 
   // apply Phong shading by using the following parameters
   vec4 ka = vec4(0.25,0.25,0.25,1.0); // reflectance coeff. for ambient

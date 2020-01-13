@@ -158,7 +158,6 @@ int main(int argc, char * argv[]) {
 		exit(-1);
 	}
 
-	//glfwSetKeyCallback(win, callback_key);
 	glfwMakeContextCurrent(win);
 	glfwSetKeyCallback(win, key_callback);
 	GLenum err = glewInit();
@@ -262,13 +261,6 @@ int main(int argc, char * argv[]) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// bind textures on corresponding texture units
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, idJpegTexture);
-
-		glActiveTexture(GL_TEXTURE0 + 1);
-		glBindTexture(GL_TEXTURE_2D, idHeightTexture);
-
 		glm::mat4 view;
 		glm::mat4 projection;
 		float offset = (textureOffset % 250)/250.0f;
@@ -300,8 +292,8 @@ int main(int argc, char * argv[]) {
 		unsigned int lightPosLoc  = glGetUniformLocation(idProgramShader, "lightPosition");
 		unsigned int cameraPosLoc  = glGetUniformLocation(idProgramShader, "cameraPosition");
 
-		unsigned int heightTexLoc = glGetUniformLocation(idProgramShader, "heightTex");
-		unsigned int normalTexLoc  = glGetUniformLocation(idProgramShader, "normalTex");
+		unsigned int heightMapLoc = glGetUniformLocation(idProgramShader, "heightMap");
+		unsigned int rgbTextureLoc  = glGetUniformLocation(idProgramShader, "rgbTexture");
 
 		// pass them to the shaders (3 different ways)
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -309,8 +301,8 @@ int main(int argc, char * argv[]) {
 		glUniform3fv(lightPosLoc, 1, &lightPosition[0]);
 		glUniform3fv(cameraPosLoc, 1, &cameraPosition[0]);
 
-		glUniform1i(heightTexLoc, 0);
-		glUniform1i(normalTexLoc, 1);
+		glUniform1i(heightMapLoc, 0);
+		glUniform1i(rgbTextureLoc, 1);
 		// render container
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
