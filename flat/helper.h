@@ -23,6 +23,6 @@ GLuint initFragmentShader(const string& filename);
 
 bool readDataFromFile(const string& fileName, string &data);
 
-void initTexture(char *filename,int *w, int *h);
+void initTexture(char *filename,int *w, int *h, GLuint id, int index);
 
 #endif

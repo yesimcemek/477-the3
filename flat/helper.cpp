@@ -82,7 +82,7 @@ bool readDataFromFile(const string& fileName, string &data) {
     return true;
 }
 
-void initTexture(char *filename,int *w, int *h)
+void initTexture(char *filename,int *w, int *h, GLuint id, int index)
 {
     int width, height;
 
@@ -134,9 +134,9 @@ void initTexture(char *filename,int *w, int *h)
     height = cinfo.image_height;
     width = cinfo.image_width;
 
-    glGenTextures(1,&idJpegTexture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, idJpegTexture);
+    glGenTextures(1,&id);
+    glActiveTexture(GL_TEXTURE0 + index);
+    glBindTexture(GL_TEXTURE_2D, id);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, raw_image);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

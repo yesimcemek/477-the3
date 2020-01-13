@@ -9,6 +9,7 @@ uniform vec4 cameraPosition;
 
 // Texture-related data;
 uniform sampler2D rgbTexture;
+uniform sampler2D heightMap;
 uniform int widthTexture;
 uniform int heightTexture;
 

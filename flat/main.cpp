@@ -13,6 +13,7 @@ GLuint idProgramShader;
 GLuint idFragmentShader;
 GLuint idVertexShader;
 GLuint idJpegTexture;
+GLuint idHeightTexture;
 GLuint idMVPMatrix;
 
 int xpos, ypos;
@@ -150,7 +151,7 @@ void key_callback( GLFWwindow* window, int key, int scancode, int action, int mo
 
 int main(int argc, char * argv[]) {
 
-	if (argc != 2) {
+	if (argc != 3) {
 		printf("Only one texture image expected!\n");
 		exit(-1);
 	}
@@ -187,7 +188,8 @@ int main(int argc, char * argv[]) {
 
 	initShaders();
 	glUseProgram(idProgramShader);
-	initTexture(argv[1], & widthTexture, & heightTexture);
+	initTexture(argv[1], & widthTexture, & heightTexture, idHeightTexture, 0);
+	initTexture(argv[2], & widthTexture, & heightTexture, idJpegTexture, 1);
 
 	int vertexCount = (widthTexture + 1) * (heightTexture + 1);
 	float *vertices = new float[vertexCount * 3];
@@ -229,23 +231,23 @@ int main(int argc, char * argv[]) {
 	lightPosition = glm::vec3(widthTexture/2.0f, 100.0f, heightTexture/2.0f);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  glGenBuffers(1, &EBO);
 
-    glBindVertexArray(VAO);
+  glBindVertexArray(VAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, 3 * vertexCount * sizeof(float), vertices, GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, 3 * vertexCount * sizeof(float), vertices, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+  // position attribute
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  glEnableVertexAttribArray(0);
 
 	glUseProgram(idProgramShader);
 
@@ -254,8 +256,6 @@ int main(int argc, char * argv[]) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// bind textures on corresponding texture units
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, idJpegTexture);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -267,11 +267,15 @@ int main(int argc, char * argv[]) {
 		unsigned int heightLoc  = glGetUniformLocation(idProgramShader, "heightTexture");
 		unsigned int heightFactorLoc  = glGetUniformLocation(idProgramShader, "heightFactor");
 		unsigned int textureOffsetLoc  = glGetUniformLocation(idProgramShader, "textureOffset");
+		unsigned int heightMapLoc  = glGetUniformLocation(idProgramShader, "heightMap");
+		unsigned int rgbTextureLoc  = glGetUniformLocation(idProgramShader, "rgbTexture");
 
 		glUniform1i(textureOffsetLoc, textureOffset%widthTexture);
 		glUniform1i(widthLoc, widthTexture);
 		glUniform1i(heightLoc, heightTexture);
 		glUniform1f(heightFactorLoc, heightFactor);
+		glUniform1i(heightMapLoc, 0);
+		glUniform1i(rgbTextureLoc, 1);
 
 		cameraPosition += speed * cameraFront;
 		view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);

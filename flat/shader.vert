@@ -12,6 +12,7 @@ uniform int textureOffset;
 
 // Texture-related data
 uniform sampler2D rgbTexture;
+uniform sampler2D heightMap;
 uniform int widthTexture;
 uniform int heightTexture;
 
@@ -24,7 +25,7 @@ out vec3 ToCameraVector; // Vector from Vertex to Camera;
 
 float computeHeight(vec2 pos)
 {
-	return (texture(rgbTexture, pos).x)*heightFactor;
+	return (texture(heightMap, pos).x)*heightFactor;
 }
 
 vec3 computeNormal(vec3 a, vec3 b, vec3 c)
