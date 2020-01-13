@@ -36,7 +36,12 @@ static void errorCallback(int error,
 const char * description) {
 fprintf(stderr, "Error: %s\n", description);
 }
-
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    // make sure the viewport matches the new window dimensions; note that width and
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
+}
 void key_callback( GLFWwindow* window, int key, int scancode, int action, int mods ){
 	int width, height;
 	switch (key) {
@@ -48,9 +53,10 @@ void key_callback( GLFWwindow* window, int key, int scancode, int action, int mo
 				fullScreen = false;
 				}
 				else{
+					fullScreen = true;
 				glfwGetWindowPos(window, &xpos, &ypos);
-				glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), xpos, ypos, 1920, 1080, 0);
-				fullScreen = true;
+				glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, 1920, 1080, 0);
+
 				}
 			}
 			break;
@@ -60,14 +66,10 @@ void key_callback( GLFWwindow* window, int key, int scancode, int action, int mo
 			}
 			break;
 		case GLFW_KEY_R:
-			if(action == GLFW_PRESS){
-				heightFactor += 0.5;
-			}
+			heightFactor += 0.5;
 			break;
 		case GLFW_KEY_F:
-			if(action == GLFW_PRESS){
-				heightFactor -= 0.5;
-			}
+			heightFactor -= 0.5;
 			break;
 		case GLFW_KEY_Y:
 				speed += 0.01;
@@ -118,10 +120,10 @@ void key_callback( GLFWwindow* window, int key, int scancode, int action, int mo
 				yaw += 0.05f;
 				break;
 		case GLFW_KEY_Q:
-				textureOffset -= 1;
+				textureOffset += 1;
 				break;
 		case GLFW_KEY_E:
-				textureOffset += 1;
+				textureOffset -= 1;
 				break;
 		case GLFW_KEY_I:
 				cameraPosition = glm::vec3(widthTexture/2.0f, widthTexture/10.0f, -widthTexture/4.0f);
@@ -130,6 +132,7 @@ void key_callback( GLFWwindow* window, int key, int scancode, int action, int mo
 				yaw =  90.0f;
 				heightFactor = 10.0;
 				speed = 0.0;
+				textureOffset = 0;
 				break;
 		default:
 				break;
@@ -160,10 +163,11 @@ int main(int argc, char * argv[]) {
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
 	win = glfwCreateWindow(1000, 1000, "CENG477 - HW3", NULL, NULL);
-	//glfwSetFramebufferSizeCallback(win, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(win, framebuffer_size_callback);
 
 	if (!win) {
 		glfwTerminate();
@@ -247,47 +251,47 @@ int main(int argc, char * argv[]) {
 
 	while (!glfwWindowShouldClose(win)) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // bind textures on corresponding texture units
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, idJpegTexture);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	    	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	    	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-	    	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-        glm::mat4 view;
-        glm::mat4 projection;
+		// bind textures on corresponding texture units
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, idJpegTexture);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+		glm::mat4 view;
+		glm::mat4 projection;
 
-        unsigned int widthLoc = glGetUniformLocation(idProgramShader, "widthTexture");
-        unsigned int heightLoc  = glGetUniformLocation(idProgramShader, "heightTexture");
-        unsigned int heightFactorLoc  = glGetUniformLocation(idProgramShader, "heightFactor");
-				unsigned int textureOffsetLoc  = glGetUniformLocation(idProgramShader, "textureOffset");
+		unsigned int widthLoc = glGetUniformLocation(idProgramShader, "widthTexture");
+		unsigned int heightLoc  = glGetUniformLocation(idProgramShader, "heightTexture");
+		unsigned int heightFactorLoc  = glGetUniformLocation(idProgramShader, "heightFactor");
+		unsigned int textureOffsetLoc  = glGetUniformLocation(idProgramShader, "textureOffset");
 
-				glUniform1i(textureOffsetLoc, textureOffset%widthTexture);
-        glUniform1i(widthLoc, widthTexture);
-        glUniform1i(heightLoc, heightTexture);
-        glUniform1f(heightFactorLoc, heightFactor);
+		glUniform1i(textureOffsetLoc, textureOffset%widthTexture);
+		glUniform1i(widthLoc, widthTexture);
+		glUniform1i(heightLoc, heightTexture);
+		glUniform1f(heightFactorLoc, heightFactor);
 
-        cameraPosition += speed * cameraFront;
-  		view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
+		cameraPosition += speed * cameraFront;
+		view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
 
-        projection = glm::perspective(45.0f, aspect_ratio, 0.1f, 1000.0f);
+		projection = glm::perspective(45.0f, aspect_ratio, 0.1f, 1000.0f);
 
-        // retrieve the matrix uniform locations
-        unsigned int viewLoc  = glGetUniformLocation(idProgramShader, "view");
-        unsigned int projLoc  = glGetUniformLocation(idProgramShader, "projection");
-        unsigned int lightPosLoc  = glGetUniformLocation(idProgramShader, "lightPosition");
-        unsigned int cameraPosLoc  = glGetUniformLocation(idProgramShader, "cameraPosition");
+		// retrieve the matrix uniform locations
+		unsigned int viewLoc  = glGetUniformLocation(idProgramShader, "view");
+		unsigned int projLoc  = glGetUniformLocation(idProgramShader, "projection");
+		unsigned int lightPosLoc  = glGetUniformLocation(idProgramShader, "lightPosition");
+		unsigned int cameraPosLoc  = glGetUniformLocation(idProgramShader, "cameraPosition");
 
-        // pass them to the shaders (3 different ways)
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-        glUniform3fv(lightPosLoc, 1, &lightPosition[0]);
-        glUniform3fv(cameraPosLoc, 1, &cameraPosition[0]);
-        // render container
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+		// pass them to the shaders (3 different ways)
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniform3fv(lightPosLoc, 1, &lightPosition[0]);
+		glUniform3fv(cameraPosLoc, 1, &cameraPosition[0]);
+		// render container
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(win);
 		glfwPollEvents();

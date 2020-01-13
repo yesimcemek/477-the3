@@ -40,7 +40,13 @@ void main()
     vec3 pos;
     pos.x = position.x;
     pos.z = position.z;
-    textureCoordinate = vec2(1 - pos.x/widthTexture, 1 - pos.z/heightTexture);
+
+    float dede = pos.x + textureOffset;
+    if (dede > widthTexture){
+    	dede -= widthTexture;
+    }
+
+    textureCoordinate = vec2(1 - dede/widthTexture, 1 - pos.z/heightTexture);
     pos.y = computeHeight(textureCoordinate);
     
      // compute toLight vector vertex coordinate in VCS
@@ -56,22 +62,22 @@ void main()
     if(x > 0 && x < widthTexture && z > 0 && z < heightTexture) 
 	{
 		vec3 top_right = vec3(x + 1, 0, z - 1);
-		top_right.y = computeHeight(vec2(1 - top_right.x/widthTexture, 1 - top_right.z/heightTexture));
+		top_right.y = computeHeight(vec2(1 - dede/widthTexture, 1 - top_right.z/heightTexture));
 		
 		vec3 top = vec3(x, 0, z - 1);
-		top.y = computeHeight(vec2(1 - top.x/widthTexture, 1 - top.z/heightTexture));
+		top.y = computeHeight(vec2(1 - dede/widthTexture, 1 - top.z/heightTexture));
 		
 		vec3 left = vec3(x - 1, 0, z);
-		left.y = computeHeight(vec2(1 - left.x/widthTexture, 1 - left.z/heightTexture));
+		left.y = computeHeight(vec2(1 - dede/widthTexture, 1 - left.z/heightTexture));
 		
 		vec3 bottom_left = vec3(x - 1, 0, z + 1);
-		bottom_left.y = computeHeight(vec2(1 - bottom_left.x/widthTexture, 1 - bottom_left.z/heightTexture));
+		bottom_left.y = computeHeight(vec2(1 - dede/widthTexture, 1 - bottom_left.z/heightTexture));
 		
 		vec3 bottom = vec3(x, 0, z + 1);
-		bottom.y = computeHeight(vec2(1 - bottom.x/widthTexture, 1 - bottom.z/heightTexture));
+		bottom.y = computeHeight(vec2(1 - dede/widthTexture, 1 - bottom.z/heightTexture));
 		
 		vec3 right = vec3(x + 1, 0, z);
-		right.y = computeHeight(vec2(1 - right.x/widthTexture, 1 - right.z/heightTexture));
+		right.y = computeHeight(vec2(1 - dede/widthTexture, 1 - right.z/heightTexture));
 		
 		vec3 normal1 = computeNormal(pos, top_right, top);
 		vec3 normal2 = computeNormal(pos, top, left);

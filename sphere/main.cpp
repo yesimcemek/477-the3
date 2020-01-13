@@ -40,7 +40,12 @@ static void errorCallback(int error,
 const char * description) {
 fprintf(stderr, "Error: %s\n", description);
 }
-
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    // make sure the viewport matches the new window dimensions; note that width and
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
+}
 void key_callback( GLFWwindow* window, int key, int scancode, int action, int mods ){
 	int width, height;
 	switch (key) {
@@ -140,7 +145,7 @@ int main(int argc, char * argv[]) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
 	win = glfwCreateWindow(1000, 1000, "CENG477 - HW3", NULL, NULL);
-	//glfwSetFramebufferSizeCallback(win, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(win, framebuffer_size_callback);
 
 	if (!win) {
 		glfwTerminate();
@@ -269,7 +274,7 @@ int main(int argc, char * argv[]) {
 		unsigned int piLoc  = glGetUniformLocation(idProgramShader, "pi");
 		unsigned int textureOffsetLoc = glGetUniformLocation(idProgramShader, "textureOffset");
 
-		
+
 		glUniform1i(widthLoc, widthTexture);
 		glUniform1i(heightLoc, heightTexture);
 		glUniform1f(heightFactorLoc, heightFactor);
